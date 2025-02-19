@@ -30,206 +30,55 @@
 - **Spatial Resolution**: 15-25% reduction in signal spread
 
 # Chemicals That Alter Microfluidic Properties
+Sodium-based:
 
-## Surface Tension Modifiers
-1. **Surfactants**
-   - Sodium dodecyl sulfate (SDS)
-   - Tween 20, 40, 60, 80 (Polysorbates)
-   - Triton X-100
-   - Pluronic F-127, F-68
-   - CTAB (Cetyltrimethylammonium bromide)
-   - Span 80
-   - Sodium cholate and deoxycholate
-   - DOPC (1,2-dioleoyl-sn-glycero-3-phosphocholine)
+Sodium chloride (table salt)
+Sodium citrate
+Sodium bicarbonate (baking soda)
+Sodium phosphate
+Sodium lactate
 
-2. **Alcohols**
-   - Ethanol
-   - Methanol  
-   - Isopropanol
-   - 1-Butanol
-   - 2-Propanol
 
-## Viscosity Modifiers
-1. **Polymers**
-   - Polyethylene glycol (PEG)
-   - Polyvinyl alcohol (PVA)
-   - Polyvinylpyrrolidone (PVP)
-   - Poly(dimethylsiloxane) (PDMS) oligomers
-   - Polyacrylamide
-   - Carboxymethyl cellulose
-   - Hydroxypropyl methylcellulose
-   - Xanthan gum
-   - Sodium alginate
+Potassium-based:
 
-2. **Ionic Compounds**
-   - Glycerol
-   - Sucrose
-   - Glucose
-   - Ficoll
-   - Dextran
-   - Percoll
+Potassium chloride
+Potassium citrate
+Potassium bicarbonate
+Potassium phosphate
+Potassium gluconate
 
-## Surface/Channel Modifiers
-1. **Silanes**
-   - (3-Aminopropyl)triethoxysilane (APTES)
-   - Trichloro(1H,1H,2H,2H-perfluorooctyl)silane
-   - (3-Mercaptopropyl)trimethoxysilane (MPTMS)
-   - Octadecyltrichlorosilane (OTS)
-   - Methyltrichlorosilane
 
-2. **Polyelectrolytes**
-   - Poly(diallyldimethylammonium chloride) (PDADMAC)
-   - Poly(sodium 4-styrenesulfonate) (PSS)
-   - Polyethylenimine (PEI)
-   - Chitosan
-   - Poly-L-lysine
-   - Hyaluronic acid
+Calcium-based:
 
-## pH and Ionic Strength Modifiers
-1. **Buffers**
-   - Phosphate-buffered saline (PBS)
-   - HEPES
-   - Tris-HCl
-   - MES (2-(N-morpholino)ethanesulfonic acid)
-   - Bicarbonate/carbonate
-   - Citrate buffer
-   - Acetate buffer
+Calcium chloride
+Calcium citrate
+Calcium lactate
+Calcium gluconate
+Calcium phosphate
 
-2. **Salts**
-   - Sodium chloride
-   - Potassium chloride
-   - Calcium chloride
-   - Magnesium sulfate
-   - Ammonium sulfate
-   - Sodium phosphate
-   - Iron(III) chloride
 
-## Phase-Change and Stimulus-Responsive Materials
-1. **Thermally Responsive Polymers**
-   - Poly(N-isopropylacrylamide) (PNIPAM)
-   - Pluronic F-127
-   - Methylcellulose
-   - Elastin-like polypeptides (ELPs)
+Magnesium-based:
 
-2. **pH-Responsive Polymers**
-   - Poly(acrylic acid)
-   - Poly(methacrylic acid)
-   - Chitosan
-   - Poly(2-vinylpyridine)
-   - Poly(vinyl alcohol)-poly(acrylic acid)
+Magnesium chloride
+Magnesium citrate
+Magnesium gluconate
+Magnesium lactate
+Magnesium oxide (less soluble)
 
-3. **Light-Responsive Materials**
-   - Azobenzene derivatives
-   - Spiropyran compounds
-   - Nitrobenzyl-based photocleavable groups
-   - Ruthenium complexes
-   - Photoacid generators
 
-## Electrokinetic Flow Modifiers
-1. **Electrolytes**
-   - Potassium ferricyanide
-   - Potassium ferrocyanide  
-   - Silver nitrate
-   - Copper sulfate
-   - Zinc chloride
+Other minerals:
 
-2. **Zwitterionic Compounds**
-   - Betaine
-   - Sulfobetaine
-   - Phosphorylcholine
-   - Amino acids (glycine, alanine)
-   - Carnitine
+Zinc gluconate
+Zinc citrate
+Manganese gluconate
+Chromium chloride (in trace amounts)
+Selenium compounds (specific food-grade forms)
 
-## Droplet Microfluidic Chemicals
-1. **Emulsion Stabilizers**
-   - Span 80
-   - ABIL EM90
-   - Krytox (perfluoropolyether)
-   - Pico-Surf™
-   - Fluorosurfactants (FC-40, HFE-7500)
 
-2. **Oils and Carrier Phases**
-   - Mineral oil
-   - Silicone oil
-   - Fluorocarbon oils (FC-40, FC-70)
-   - Hexadecane
-   - Corn oil
-   - Soybean oil
+Organic acid salts:
 
-## Precipitation and Crystallization Agents
-1. **Protein Crystallization**
-   - Polyethylene glycol (various MWs)
-   - Ammonium sulfate
-   - 2-Methyl-2,4-pentanediol (MPD)
-   - Sodium citrate
-   - Isopropanol
-   - Jeffamine
-
-2. **Nanoparticle Synthesis**
-   - Sodium borohydride
-   - Trisodium citrate
-   - Ascorbic acid
-   - Silver nitrate
-   - Chloroauric acid
-   - Cetyltrimethylammonium bromide (CTAB)
-
-## Biological Fluid Modifiers
-1. **Anticoagulants**
-   - Heparin
-   - EDTA
-   - Sodium citrate
-   - Acid-citrate-dextrose (ACD)
-
-2. **Cell Culture Media Additives**
-   - Fetal bovine serum
-   - Pluronic F-68
-   - Bovine serum albumin (BSA)
-   - Methylcellulose
-   - Collagen
-   - Matrigel
-
-## Microfluidic Valve and Actuator Components
-1. **Gas-Generating Reactions**
-   - Sodium bicarbonate + acid
-   - Hydrogen peroxide + manganese dioxide
-   - Sodium azide compounds
-   - Platinum catalysts
-
-2. **Hydrogel Actuators**
-   - Poly(N-isopropylacrylamide) (PNIPAM)
-   - Polyacrylamide
-   - Alginate
-   - Poly(ethylene glycol) diacrylate (PEGDA)
-   - Hyaluronic acid derivatives
-
-## Microreactor Chemical Modifiers
-1. **Catalysts**
-   - Palladium nanoparticles
-   - Platinum black
-   - Enzymes (glucose oxidase, horseradish peroxidase)
-   - Iron oxide nanoparticles
-   - Titanium dioxide
-   - Gold nanoparticles
-
-2. **Chemical Amplifiers**
-   - Horseradish peroxidase/H₂O₂/TMB system
-   - Alkaline phosphatase/pNPP system
-   - Silver enhancement solutions
-   - DNA polymerase/nucleotide mixtures
-   - Tyramide signal amplification reagents
-
-## Specialty Applications
-1. **Magnetically Responsive Materials**
-   - Ferrofluids
-   - Superparamagnetic iron oxide nanoparticles (SPIONs)
-   - Carbonyl iron powder
-   - Magnetite (Fe₃O₄)
-   - Dynabeads™
-
-2. **Electrically Responsive Materials**
-   - Carbon nanotubes
-   - Graphene oxide
-   - Conductive polymers (PEDOT:PSS)
-   - Silver nanowires
-   - Polyaniline
-   - Polypyrrole
+Sodium acetate
+Potassium acetate
+Sodium/potassium tartrate
+Calcium ascorbate (vitamin C form)
+Magnesium aspartate
