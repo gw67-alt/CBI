@@ -30,7 +30,8 @@
 - **Spatial Resolution**: 15-25% reduction in signal spread
 
 # Chemicals That Alter Microfluidic Properties
-Sodium-based:
+
+# Sodium-based
 
 Sodium chloride (table salt)
 Sodium citrate
@@ -39,7 +40,7 @@ Sodium phosphate
 Sodium lactate
 
 
-Potassium-based:
+# Potassium-based
 
 Potassium chloride
 Potassium citrate
@@ -48,7 +49,7 @@ Potassium phosphate
 Potassium gluconate
 
 
-Calcium-based:
+# Calcium-based
 
 Calcium chloride
 Calcium citrate
@@ -57,7 +58,7 @@ Calcium gluconate
 Calcium phosphate
 
 
-Magnesium-based:
+# Magnesium-based
 
 Magnesium chloride
 Magnesium citrate
@@ -66,7 +67,7 @@ Magnesium lactate
 Magnesium oxide (less soluble)
 
 
-Other minerals:
+# Other minerals
 
 Zinc gluconate
 Zinc citrate
@@ -75,7 +76,7 @@ Chromium chloride (in trace amounts)
 Selenium compounds (specific food-grade forms)
 
 
-Organic acid salts:
+# Organic acid salts
 
 Sodium acetate
 Potassium acetate
