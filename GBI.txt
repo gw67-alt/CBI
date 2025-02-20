@@ -105,14 +105,3 @@ Here's the temporal resolution for each unique salt-metabolite pairing:
 | 3-MT | Magnesium oxide | 0.55 | 0.66 | 1.37 | 1.92 | 423.0 |
 | Kynurenine metabolites | Magnesium chloride | 0.56 | 0.67 | 1.40 | 1.96 | 414.8 |
 | MHPG | Magnesium lactate | 0.57 | 0.68 | 1.42 | 1.99 | 409.6 |
-
-
-## Performance Highlights
-
-- **Highest enhancement:** Histamine metabolites + Calcium chloride (56.61 mS/cm, 375.7%)
-- **Best SNR improvement:** Histamine metabolites (3.83×)
-- **Best temporal resolution:** Histamine metabolites (0.43ms)
-- **Lowest VOC detection threshold:** Histamine metabolites (3.0 ppb)
-- **Fastest sampling rate:** Histamine metabolites (every 6.7 minutes)
-
-
