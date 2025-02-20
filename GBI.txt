@@ -105,3 +105,17 @@ Here's the temporal resolution for each unique salt-metabolite pairing:
 | 3-MT | Magnesium oxide | 0.55 | 0.66 | 1.37 | 1.92 | 423.0 |
 | Kynurenine metabolites | Magnesium chloride | 0.56 | 0.67 | 1.40 | 1.96 | 414.8 |
 | MHPG | Magnesium lactate | 0.57 | 0.68 | 1.42 | 1.99 | 409.6 |
+
+
+
+
+# Electronic Measurement
+Electrodermal Activity (EDA) / Galvanic Skin Response (GSR)
+
+Basic principle: Measures electrical conductance between two points on the skin
+Equipment:
+
+Silver/silver chloride (Ag/AgCl) electrodes
+Constant voltage source (typically 0.5V)
+Current measurement circuit
+
