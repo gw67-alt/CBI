@@ -475,7 +475,7 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
             
         # Get current category
         current_category = categories[current_category_idx]
-        print("Category: ", current_category)
+        print("Category:", current_category)
         next_category_idx = (current_category_idx + 1) % len(categories)
         next_category = categories[next_category_idx]
         
