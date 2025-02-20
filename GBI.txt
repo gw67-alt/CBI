@@ -1,23 +1,7 @@
-1. **Transdermal Volatile Organic Compound (VOC) Sensing**
-   - Measures SCFA-derived VOCs through skin emanation
-   - Miniaturized gas chromatography coupled with selective sensors
-   - Detection limit: 50 ppb for primary SCFAs
-   - Sampling frequency: Every 5-15 minutes
-
-2. **Sweat Analysis Microfluidics**
-   - Continuous sampling of eccrine sweat
-   - Enzymatic detection cascade:
-     * Acyl-CoA synthetase
-     * Acyl-CoA oxidase
-     * Peroxidase-coupled colorimetric/amperometric detection
-   - Microfluidic lateral flow with integrated sensors
-   - Detection range: 0.1-20 mM total SCFAs
-
-3. **Gut-Skin Axis Metabolite Correlation**
-   - Proprietary algorithm correlating:
-     * Breath hydrogen/methane
+1. **Gut-Skin Axis Metabolite Correlation**
+   - Proprietary algorithm correlations
      * Skin pH gradients
-     * Specific skin microbiome shifts
+     * Specific skin conductance shifts
      * Transepidermal water loss changes
    - Machine learning model trained on anxiety-state biomarkers
 
