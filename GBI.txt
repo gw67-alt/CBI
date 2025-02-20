@@ -5,14 +5,6 @@
      * Transepidermal water loss changes
    - Machine learning model trained on neurotransmitter biomarkers
 
-## Performance Characteristics
-
-- **Expected Signal Enhancement**: 30-45% amplitude increase
-- **Signal-to-Noise Ratio Improvement**: 2.5-4.0× baseline
-- **Frequency Response Enhancement**: Greatest at 10-100 Hz range
-- **Temporal Resolution**: <1 ms improvement in rise/fall times
-- **Spatial Resolution**: 15-25% reduction in signal spread
-
 # Chemicals That Alter Microfluidic Properties
 
 # Sodium-based
