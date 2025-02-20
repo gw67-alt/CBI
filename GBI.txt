@@ -83,3 +83,17 @@ Potassium acetate
 Sodium/potassium tartrate
 Calcium ascorbate (vitamin C form)
 Magnesium aspartate
+
+
+Major neurotransmitter metabolites found in the gut microbiome:
+
+1. 5-HIAA (5-hydroxyindoleacetic acid) - serotonin metabolite
+2. HVA (homovanillic acid) - dopamine metabolite 
+3. VMA (vanillylmandelic acid) - norepinephrine/epinephrine metabolite
+4. MHPG (3-methoxy-4-hydroxyphenylglycol) - norepinephrine metabolite
+5. DOPAC (3,4-dihydroxyphenylacetic acid) - dopamine metabolite
+6. 3-MT (3-methoxytyramine) - dopamine metabolite
+7. GABA metabolites (such as succinic semialdehyde)
+8. Histamine metabolites (imidazoleacetic acid, methylhistamine)
+9. Glutamate metabolites (α-ketoglutarate, glutamine)
+10. Kynurenine pathway metabolites (from tryptophan metabolism)
