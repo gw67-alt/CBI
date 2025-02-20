@@ -113,6 +113,24 @@ Major neurotransmitter metabolites found in the gut microbiome:
 | Glutamate metabolites | Calcium lactate | 10.0 | 53.78 | 351.9 |
 | Kynurenine metabolites | Magnesium chloride | 10.0 | 43.94 | 314.5 |
 
+Here's the temporal resolution for each unique salt-metabolite pairing:
+
+# Temporal Resolution Performance
+
+| Metabolite | Salt | Rise Time (ms) | Fall Time (ms) | Settling Time (ms) | Total Response (ms) | Max Sampling Rate (Hz) |
+|------------|------|----------------|----------------|--------------------|--------------------|------------------------|
+| Histamine metabolites | Calcium chloride | 0.43 | 0.52 | 1.08 | 1.52 | 536.0 |
+| VMA | Calcium citrate | 0.45 | 0.54 | 1.14 | 1.59 | 512.1 |
+| Glutamate metabolites | Calcium lactate | 0.46 | 0.55 | 1.16 | 1.62 | 503.1 |
+| 5-HIAA | Calcium gluconate | 0.47 | 0.56 | 1.17 | 1.63 | 498.8 |
+| DOPAC | Calcium phosphate | 0.47 | 0.57 | 1.19 | 1.66 | 490.3 |
+| GABA metabolites | Magnesium gluconate | 0.54 | 0.65 | 1.35 | 1.89 | 431.5 |
+| HVA | Magnesium citrate | 0.55 | 0.66 | 1.37 | 1.92 | 423.0 |
+| 3-MT | Magnesium oxide | 0.55 | 0.66 | 1.37 | 1.92 | 423.0 |
+| Kynurenine metabolites | Magnesium chloride | 0.56 | 0.67 | 1.40 | 1.96 | 414.8 |
+| MHPG | Magnesium lactate | 0.57 | 0.68 | 1.42 | 1.99 | 409.6 |
+
+
 ## Performance Highlights
 
 - **Highest enhancement:** Histamine metabolites + Calcium chloride (56.61 mS/cm, 375.7%)
