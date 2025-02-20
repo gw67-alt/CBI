@@ -3,7 +3,7 @@
      * Skin pH gradients
      * Specific skin conductance shifts
      * Transepidermal water loss changes
-   - Machine learning model trained on anxiety-state biomarkers
+   - Machine learning model trained on neurotransmitter-state biomarkers
 
 ## Performance Characteristics
 
