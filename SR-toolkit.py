@@ -6,9 +6,16 @@ import os
 from collections import deque, defaultdict
 import time
 import sys
+import serial
+import serial.tools.list_ports
 
 KB_limit = -1
 BUFFER_SIZE = 999999
+
+# Serial connection parameters
+BAUD_RATE = 9600
+SERIAL_TIMEOUT = 0.1  # Non-blocking read timeout
+THRESHOLD = 500  # Default threshold for serial signal
 
 translation_dict = {
     "what": "descriptions.txt",  # nouns (can be subjects or objects)
@@ -18,6 +25,102 @@ translation_dict = {
     "grade": "adj.txt",        # adjectives
     "form": "prep.txt"         # prepositions
 }
+
+class SerialMonitor:
+    def __init__(self, port=None, baud_rate=BAUD_RATE, timeout=SERIAL_TIMEOUT, threshold=THRESHOLD):
+        self.port = port
+        self.baud_rate = baud_rate
+        self.timeout = timeout
+        self.threshold = threshold
+        self.serial_conn = None
+        self.stop_event = threading.Event()
+        self.monitor_thread = None
+        self.threshold_exceeded = threading.Event()
+    
+    def list_ports(self):
+        """List available serial ports."""
+        ports = serial.tools.list_ports.comports()
+        return [port.device for port in ports]
+    
+    def connect(self, port=None):
+        """Connect to a serial port."""
+        if port:
+            self.port = port
+        
+        try:
+            self.serial_conn = serial.Serial(
+                port=self.port,
+                baudrate=self.baud_rate,
+                timeout=self.timeout
+            )
+            print(f"Connected to {self.port} at {self.baud_rate} baud")
+            return True
+        except Exception as e:
+            print(f"Error connecting to serial port: {e}")
+            self.serial_conn = None
+            return False
+    
+    def disconnect(self):
+        """Disconnect from serial port."""
+        if self.serial_conn and self.serial_conn.is_open:
+            self.serial_conn.close()
+            print(f"Disconnected from {self.port}")
+    
+    def start_monitoring(self):
+        """Start monitoring serial data in a separate thread."""
+        if not self.serial_conn or not self.serial_conn.is_open:
+            print("Cannot start monitoring: Serial connection not established")
+            return False
+        
+        self.stop_event.clear()
+        self.threshold_exceeded.clear()
+        self.monitor_thread = threading.Thread(target=self._monitor_serial_data)
+        self.monitor_thread.daemon = True
+        self.monitor_thread.start()
+        print(f"Started monitoring serial data (threshold: {self.threshold})")
+        return True
+    
+    def stop_monitoring(self):
+        """Stop the serial monitoring thread."""
+        if self.monitor_thread and self.monitor_thread.is_alive():
+            self.stop_event.set()
+            self.monitor_thread.join(timeout=1.0)
+            print("Stopped serial monitoring")
+    
+    def set_threshold(self, threshold):
+        """Set a new threshold value."""
+        self.threshold = threshold
+        print(f"Threshold set to {threshold}")
+    
+    def is_threshold_exceeded(self):
+        """Check if threshold has been exceeded."""
+        return self.threshold_exceeded.is_set()
+    
+    def reset_threshold_flag(self):
+        """Reset the threshold exceeded flag."""
+        self.threshold_exceeded.clear()
+    
+    def _monitor_serial_data(self):
+        """Thread function to monitor serial data."""
+        while not self.stop_event.is_set():
+            if self.serial_conn and self.serial_conn.is_open:
+                try:
+                    if self.serial_conn.in_waiting > 0:
+                        # Read line and convert to integer
+                        line = self.serial_conn.readline().decode('utf-8').strip()
+                        try:
+                            value = int(line)
+                            # Check if value exceeds threshold
+                            if value > self.threshold:
+                                print(f"\nSerial signal ({value}) exceeded threshold ({self.threshold})")
+                                self.threshold_exceeded.set()
+                        except ValueError:
+                            # Ignore non-integer values
+                            pass
+                except Exception as e:
+                    print(f"Error reading serial data: {e}")
+                    time.sleep(0.1)
+            time.sleep(0.01)  # Small delay to prevent CPU hogging
 
 class SVOPattern:
     def __init__(self):
@@ -80,6 +183,17 @@ class VocabularyCache:
     
     def get_vocabulary(self, category: str) -> Set[str]:
         return self.vocab_cache.get(category, set())
+    
+    def is_word_in_category(self, word: str, category: str) -> bool:
+        """Check if a word belongs to a specific category."""
+        return word in self.vocab_cache.get(category, set())
+    
+    def find_word_category(self, word: str) -> str:
+        """Find which category a word belongs to."""
+        for category, words in self.vocab_cache.items():
+            if word in words:
+                return category
+        return None
 
 def process_sentence(sentence: str, vocab_cache: VocabularyCache, svo_patterns: SVOPattern = None) -> str:
     words = sentence.split()
@@ -142,13 +256,22 @@ def generate_svo_sentence(svo_patterns: SVOPattern, vocab_cache: VocabularyCache
     
     return None
 
-def print_word_by_word(sentence: str, delay: float = 1.0) -> None:
-    """Print a sentence one word at a time with a delay between words."""
+def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: SerialMonitor = None) -> bool:
+    """
+    Print a sentence one word at a time with a delay between words.
+    Returns True if completed, False if interrupted by serial signal.
+    """
     if not sentence:
-        return
+        return True
         
     words = sentence.split()
     for i, word in enumerate(words):
+        # Check serial monitor if provided
+        if serial_monitor and serial_monitor.is_threshold_exceeded():
+            print("\n[Output interrupted by serial signal]")
+            serial_monitor.reset_threshold_flag()
+            return False
+            
         # Print word without newline
         sys.stdout.write(word)
         sys.stdout.flush()
@@ -162,7 +285,7 @@ def print_word_by_word(sentence: str, delay: float = 1.0) -> None:
         time.sleep(delay)
     
     # Print newline at the end
-    print()
+    return True
 
 class ResultBuffer:
     def __init__(self, output_file: str, buffer_size: int = BUFFER_SIZE):
@@ -255,18 +378,207 @@ def build_memory_multithreaded(filename: str, num_threads: int = None) -> SVOPat
     print(f"\nMemory building complete. Buffer flushed {result_buffer.flush_count} times.")
     return svo_patterns
 
-def print_query_results_word_by_word(results: set, delay: float = 1.0) -> None:
-    """Print query results one word at a time."""
-    results_str = "[ " + ' '.join(results) + " ]"
-    print_word_by_word(results_str, delay)
+def print_query_results_word_by_word(results: set, delay: float = 1.0, serial_monitor: SerialMonitor = None) -> tuple:
+    """
+    Print query results one word at a time.
+    Returns (completed_flag, last_word) - where completed_flag is True if printing completed
+    and last_word is the last word printed (or None if there were no results).
+    """
+    if not results:
+        print("[ No results found ]")
+        return True, None
+        
+    words = list(results)
+    results_str = "[ " + ' '.join(words) + " ]"
+    completed = print_word_by_word(results_str, delay, serial_monitor)
+    
+    # If we have results, return the last actual word
+    if words:
+        return completed, words[-1]
+    return completed, None
+
+def setup_serial_connection():
+    """Setup serial connection with user input."""
+    serial_monitor = SerialMonitor()
+    available_ports = serial_monitor.list_ports()
+    
+    if not available_ports:
+        print("No serial ports found. Serial monitoring will be disabled.")
+        return None
+    
+    print("\nAvailable serial ports:")
+    for i, port in enumerate(available_ports):
+        print(f"{i+1}. {port}")
+    
+    try:
+        choice = input(f"Select port (1-{len(available_ports)}, or Enter to skip): ").strip()
+        if not choice:
+            print("Serial monitoring disabled.")
+            return None
+            
+        port_idx = int(choice) - 1
+        if 0 <= port_idx < len(available_ports):
+            selected_port = available_ports[port_idx]
+            
+            # Get threshold
+            try:
+                threshold = int(input("Enter threshold value (default 500): ") or "500")
+            except ValueError:
+                print("Invalid input. Using default threshold of 500.")
+                threshold = 500
+                
+            serial_monitor.set_threshold(threshold)
+            
+            if serial_monitor.connect(selected_port):
+                if serial_monitor.start_monitoring():
+                    return serial_monitor
+    except ValueError:
+        pass
+    
+    print("Failed to set up serial monitoring. It will be disabled.")
+    return None
+
+def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterations=10, initial_category="what", initial_word=None):
+    """
+    Run a series of queries that automatically chain from one to the next.
+    Each query uses the last result from the previous query, alternating categories.
+    """
+    # Pattern of categories to cycle through
+    categories = ["what", "how", "what", "how"]
+    current_category_idx = categories.index(initial_category) if initial_category in categories else 0
+    
+    # If no initial word is provided, get a random one from the current category
+    current_word = initial_word
+    if not current_word:
+        category_vocab = vocab_cache.get_vocabulary(categories[current_category_idx])
+        if category_vocab:
+            current_word = random.choice(list(category_vocab))
+        else:
+            print(f"No words found in category '{categories[current_category_idx]}'")
+            return
+    
+    print(f"\nStarting auto-chain with: {categories[current_category_idx]} {current_word}")
+    print(f"Will run for {num_iterations} iterations in pattern: {' → '.join(categories)} → ...")
+    time.sleep(2)  # Give user time to read explanation
+    
+    try:
+        with open("memory.txt", "r", encoding="utf-8") as f:
+            data = f.readlines()
+    except FileNotFoundError:
+        print("Error: memory.txt not found. Please build memory first (option 1).")
+        return
+    
+    for i in range(num_iterations):
+        if not current_word:
+            print("\nNo word to continue with. Stopping auto-chain.")
+            break
+            
+        # Get current category
+        current_category = categories[current_category_idx]
+        print("Category: ", current_category)
+        next_category_idx = (current_category_idx + 1) % len(categories)
+        next_category = categories[next_category_idx]
+        
+        # Process query
+        out = set()
+        interrupted = False
+        
+        for sub_text in data:
+            if serial_monitor and serial_monitor.is_threshold_exceeded():
+                serial_monitor.reset_threshold_flag()
+                interrupted = True
+                break
+                
+            lingual = sub_text.split(":")
+            words_in_entry = {}
+            
+            for group in lingual:
+                parts = group.split(">")
+                if len(parts) > 1:
+                    element0 = parts[0].strip()
+                    element1 = parts[1].strip()
+
+                    if element0 and element1:
+                        if element0 not in words_in_entry:
+                            words_in_entry[element0] = set()
+                        words_in_entry[element0].add(element1)
+
+            relationship_mappings = [
+                ("what", "do"),
+                ("how", "do"),
+                ("describe", "what"),
+                ("grade", "what"),
+                ("what", "how"),
+                ("describe", "grade"),
+                ("how", "what"),
+                ("form", "what"),
+                ("form", "describe"),
+                ("form", "grade"),
+                ("form", "how")
+            ]
+
+            for source, target in relationship_mappings:
+                if current_word in words_in_entry.get(source, set()):
+                    # Only collect words from the next category we want
+                    if target == next_category:
+                        out.update(words_in_entry.get(target, set()))
+                    # If we can't find words in the next desired category,
+                    # just gather all relevant words for fallback
+                    else:
+                        out.update(words_in_entry.get(target, set()))
+        
+        if interrupted:
+            print("\n[Auto-chain interrupted by signal]")
+            break
+            
+        # Filter results to only include words from the next category
+        filtered_results = set()
+        for word in out:
+            if vocab_cache.is_word_in_category(word, next_category):
+                filtered_results.add(word)
+                
+        # If we don't have any words in our target category, use any results
+        if not filtered_results:
+            filtered_results = out
+        
+        # Print results and get the last word
+        completed, last_word = print_query_results_word_by_word(filtered_results, word_delay, serial_monitor)
+        
+        if not completed:
+            print("\n[Auto-chain interrupted during output]")
+            break
+            
+        # Move to next category and word
+        current_category_idx = next_category_idx
+        current_word = last_word
+        
+        # If we got no results, try to pick a random word from the next category
+        if not current_word:
+            category_vocab = vocab_cache.get_vocabulary(categories[current_category_idx])
+            if category_vocab:
+                current_word = random.choice(list(category_vocab))
+                print(f"\nNo results found. Randomly selected new word: {current_word}")
+        
+        # Small pause between iterations
+        time.sleep(1)
+    
+    print("\nAuto-chain complete.")
 
 def main():
     print(translation_dict)
     svo_patterns = None
     vocab_cache = None
+    serial_monitor = None
     
     # Default delay in seconds for word-by-word printing
     word_delay = 1.0
+    
+    try:
+        # Try to load vocabulary at startup
+        vocab_cache = VocabularyCache(translation_dict)
+    except Exception as e:
+        print(f"Warning: Could not load vocabulary files: {e}")
+        print("Make sure all required vocabulary files exist in the current directory.")
     
     while True:
         print("\nOptions:")
@@ -274,10 +586,21 @@ def main():
         print("2. Execute queries")
         print("3. Generate learned SVO sentence")
         print("4. Set word display delay (currently {:.1f} seconds)".format(word_delay))
-        print("5. Exit")
+        print("5. Configure serial monitoring" + 
+              (f" (active on {serial_monitor.port}, threshold: {serial_monitor.threshold})" 
+               if serial_monitor else " (inactive)"))
+        print("6. Auto-chain queries (what-how pattern)")
+        print("7. Exit")
 
-        choice = input("\nEnter your choice (1-5): ").strip()
-        vocab_cache = VocabularyCache(translation_dict)
+        choice = input("\nEnter your choice (1-7): ").strip()
+        
+        # Ensure vocabulary is loaded
+        if not vocab_cache:
+            try:
+                vocab_cache = VocabularyCache(translation_dict)
+            except Exception as e:
+                print(f"Error loading vocabulary: {e}")
+                continue
 
         if choice == "1":
             filename = input("Enter training file path: ")
@@ -304,63 +627,77 @@ def main():
                     continue
 
                 out = set()
-                with open("memory.txt", "r", encoding="utf-8") as f:
-                    data = f.readlines()
+                try:
+                    with open("memory.txt", "r", encoding="utf-8") as f:
+                        data = f.readlines()
 
-                with tqdm(total=len(data), desc="Processing data", unit="segment") as pbar:
-                    for sub_text in data:
-                        pbar.update(1)
+                    with tqdm(total=len(data), desc="Processing data", unit="segment") as pbar:
+                        for sub_text in data:
+                            pbar.update(1)
 
-                        lingual = sub_text.split(":")
-                        words_in_entry = {}
-                        for search_word in search_words:
-                            for group in lingual:
-                                parts = group.split(">")
-                                if len(parts) > 1:
-                                    element0 = parts[0].strip()
-                                    element1 = parts[1].strip()
+                            lingual = sub_text.split(":")
+                            words_in_entry = {}
+                            for search_word in search_words:
+                                for group in lingual:
+                                    parts = group.split(">")
+                                    if len(parts) > 1:
+                                        element0 = parts[0].strip()
+                                        element1 = parts[1].strip()
 
-                                    if element0 and element1:
-                                        if element0 not in words_in_entry:
-                                            words_in_entry[element0] = set()
-                                        words_in_entry[element0].add(element1)
+                                        if element0 and element1:
+                                            if element0 not in words_in_entry:
+                                                words_in_entry[element0] = set()
+                                            words_in_entry[element0].add(element1)
 
-                        relationship_mappings = [
-                            ("what", "do"),
-                            ("how", "do"),
-                            ("describe", "what"),
-                            ("grade", "what"),
-                            ("what", "how"),
-                            ("describe", "grade"),
-                            ("how", "what"),
-                            ("form", "what"),
-                            ("form", "describe"),
-                            ("form", "grade"),
-                            ("form", "how")
-                        ]
+                            relationship_mappings = [
+                                ("what", "do"),
+                                ("how", "do"),
+                                ("describe", "what"),
+                                ("grade", "what"),
+                                ("what", "how"),
+                                ("describe", "grade"),
+                                ("how", "what"),
+                                ("form", "what"),
+                                ("form", "describe"),
+                                ("form", "grade"),
+                                ("form", "how")
+                            ]
 
-                        for source, target in relationship_mappings:
-                            if search_word in words_in_entry.get(source, set()):
-                                out.update(words_in_entry.get(target, set()))
+                            for source, target in relationship_mappings:
+                                if search_word in words_in_entry.get(source, set()):
+                                    out.update(words_in_entry.get(target, set()))
+                except FileNotFoundError:
+                    print("Error: memory.txt not found. Please build memory first (option 1).")
+                    continue
 
                 # Print results word by word
-                print_query_results_word_by_word(out, word_delay)
+                print_query_results_word_by_word(out, word_delay, serial_monitor)
                 
         elif choice == "3":
-            svo_patterns = SVOPattern.load_from_file("SVO.txt")
+            try:
+                svo_patterns = SVOPattern.load_from_file("SVO.txt")
+            except FileNotFoundError:
+                print("Error: SVO.txt not found. Please build memory first (option 1).")
+                continue
 
             if not svo_patterns or not vocab_cache:
                 print("Please build memory first (option 1)")
                 continue
             
             print("\nGenerating SVO sentence...")
-            num_sentences = int(input("How many random sentences would you like to generate? "))
+            try:
+                num_sentences = int(input("How many random sentences would you like to generate? "))
+            except ValueError:
+                print("Invalid input. Generating 1 sentence.")
+                num_sentences = 1
+                
             print("\nGenerating random SVO sentences...")
             for i in range(num_sentences):
                 sentence = generate_svo_sentence(svo_patterns, vocab_cache, randomize=True)
                 if sentence:
                     print(f"{i+1}. ", end="")
-                    print_word_by_word(sentence, word_delay)
+                    if not print_word_by_word(sentence, word_delay, serial_monitor):
+                        break  # Stop generating more sentences if interrupted
                 else:
                     print("Could not generate a valid SVO sentence from the learned patterns.")
         
@@ -375,8 +712,71 @@ def main():
                 print(f"Word display delay set to {word_delay:.1f} seconds.")
             except ValueError:
                 print("Invalid input. Delay remains at {:.1f} seconds.".format(word_delay))
-           
+        
         elif choice == "5":
+            if serial_monitor:
+                print("\nSerial monitoring is currently active.")
+                sub_choice = input("1. Reconfigure serial connection\n2. Change threshold\n3. Disable monitoring\nEnter choice: ").strip()
+                
+                if sub_choice == "1":
+                    serial_monitor.stop_monitoring()
+                    serial_monitor.disconnect()
+                    serial_monitor = setup_serial_connection()
+                
+                elif sub_choice == "2":
+                    try:
+                        new_threshold = int(input(f"Current threshold is {serial_monitor.threshold}. Enter new threshold: "))
+                        serial_monitor.set_threshold(new_threshold)
+                    except ValueError:
+                        print("Invalid input. Threshold remains unchanged.")
+                
+                elif sub_choice == "3":
+                    serial_monitor.stop_monitoring()
+                    serial_monitor.disconnect()
+                    serial_monitor = None
+                    print("Serial monitoring disabled.")
+            else:
+                # Set up new serial connection
+                serial_monitor = setup_serial_connection()
+        
+        elif choice == "6":
+            # Auto-chain queries in what-how pattern
+            if not os.path.exists("memory.txt"):
+                print("Error: memory.txt not found. Please build memory first (option 1).")
+                continue
+                
+            print("\nAuto-Chain Query Configuration")
+            try:
+                iterations = int(input("Enter number of iterations to run (default 10): ") or "10")
+            except ValueError:
+                print("Invalid input. Using default value of 10 iterations.")
+                iterations = 10
+                
+            # Get starting category
+            start_category = input("Enter starting category ('what' or 'how', default 'what'): ").lower() or "what"
+            if start_category not in ["what", "how"]:
+                print(f"Invalid category '{start_category}'. Using 'what' instead.")
+                start_category = "what"
+                
+            # Get optional starting word
+            start_word = input(f"Enter starting word (or leave empty for random {start_category} word): ").strip()
+            if start_word and not vocab_cache.is_word_in_category(start_word, start_category):
+                print(f"Warning: '{start_word}' is not in category '{start_category}'. Will use it anyway.")
+                
+            # Start auto-chaining
+            auto_chain_queries(
+                vocab_cache=vocab_cache,
+                word_delay=word_delay,
+                serial_monitor=serial_monitor,
+                num_iterations=iterations,
+                initial_category=start_category,
+                initial_word=start_word
+            )
+           
+        elif choice == "7":
+            if serial_monitor:
+                serial_monitor.stop_monitoring()
+                serial_monitor.disconnect()
             print("Exiting program...")
             break
 
