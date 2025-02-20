@@ -97,3 +97,28 @@ Major neurotransmitter metabolites found in the gut microbiome:
 8. Histamine metabolites (imidazoleacetic acid, methylhistamine)
 9. Glutamate metabolites (α-ketoglutarate, glutamine)
 10. Kynurenine pathway metabolites (from tryptophan metabolism)
+
+# Unique Optimal Salt-Metabolite Pairings
+
+| Metabolite | Optimal Salt | Concentration (mM) | Enhancement (mS/cm) | Signal Increase (%) |
+|------------|--------------|-------------------|-------------------|---------------------|
+| 5-HIAA | Calcium gluconate | 10.0 | 53.37 | 348.5 |
+| HVA | Magnesium citrate | 10.0 | 45.02 | 324.7 |
+| VMA | Calcium citrate | 10.0 | 54.59 | 358.7 |
+| MHPG | Magnesium lactate | 10.0 | 43.22 | 307.7 |
+| DOPAC | Calcium phosphate | 10.0 | 52.57 | 341.7 |
+| 3-MT | Magnesium oxide | 10.0 | 45.02 | 324.7 |
+| GABA metabolites | Magnesium gluconate | 10.0 | 46.10 | 334.9 |
+| Histamine metabolites | Calcium chloride | 10.0 | 56.61 | 375.7 |
+| Glutamate metabolites | Calcium lactate | 10.0 | 53.78 | 351.9 |
+| Kynurenine metabolites | Magnesium chloride | 10.0 | 43.94 | 314.5 |
+
+## Performance Highlights
+
+- **Highest enhancement:** Histamine metabolites + Calcium chloride (56.61 mS/cm, 375.7%)
+- **Best SNR improvement:** Histamine metabolites (3.83×)
+- **Best temporal resolution:** Histamine metabolites (0.43ms)
+- **Lowest VOC detection threshold:** Histamine metabolites (3.0 ppb)
+- **Fastest sampling rate:** Histamine metabolites (every 6.7 minutes)
+
+
