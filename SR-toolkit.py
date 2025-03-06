@@ -267,8 +267,8 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
     for i, word in enumerate(words):
         # Check serial monitor if provided
         if serial_monitor and serial_monitor.is_threshold_exceeded():
-            print("\n[Output interrupted by serial signal]")
             serial_monitor.reset_threshold_flag()
+            print()
             return False
             
         # Print word without newline
@@ -429,6 +429,7 @@ def setup_serial_connection():
     return None
 
 def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterations=10, initial_category="what", initial_word=None):
+    
     """
     Run a series of queries that automatically chain from one to the next.
     Each query uses the last result from the previous query, alternating categories.
@@ -442,7 +443,9 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
     if not current_word:
         category_vocab = vocab_cache.get_vocabulary(categories[current_category_idx])
         if category_vocab:
-            current_word = random.choice(list(category_vocab))
+            svo_patterns = SVOPattern.load_from_file("SVO.txt")
+            rand_words = generate_svo_sentence(svo_patterns, vocab_cache, randomize=True).split()
+            current_word = random.choice(list(rand_words))
         else:
             print(f"No words found in category '{categories[current_category_idx]}'")
             return
@@ -465,6 +468,7 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
             
         # Get current category
         current_category = categories[current_category_idx]
+        print()
         print("Category:", current_category)
         next_category_idx = (current_category_idx + 1) % len(categories)
         next_category = categories[next_category_idx]
@@ -530,10 +534,6 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
         # Print results and get the last word
         completed, last_word = print_query_results_word_by_word(filtered_results, word_delay, serial_monitor)
         
-        if not completed:
-            print("\n[Auto-chain interrupted during output]")
-            break
-            
         # Move to next category and word
         current_category_idx = next_category_idx
         current_word = last_word
@@ -542,7 +542,9 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
         if not current_word:
             category_vocab = vocab_cache.get_vocabulary(categories[current_category_idx])
             if category_vocab:
-                current_word = random.choice(list(category_vocab))
+                svo_patterns = SVOPattern.load_from_file("SVO.txt")
+                rand_words = generate_svo_sentence(svo_patterns, vocab_cache, randomize=True).split()
+                current_word = random.choice(list(rand_words))
                 print(f"\nNo results found. Randomly selected new word: {current_word}")
         
         # Small pause between iterations
@@ -557,7 +559,7 @@ def main():
     serial_monitor = None
     
     # Default delay in seconds for word-by-word printing
-    word_delay = 1.0
+    word_delay = 0.3
     
     try:
         # Try to load vocabulary at startup
@@ -570,15 +572,14 @@ def main():
         print("\nOptions:")
         print("1. Build memory")
         print("2. Execute queries")
-        print("3. Generate learned SVO sentence")
-        print("4. Set word display delay (currently {:.1f} seconds)".format(word_delay))
-        print("5. Configure serial monitoring" + 
+        print("3. Set word display delay (currently {:.1f} seconds)".format(word_delay))
+        print("4. Configure serial monitoring" + 
               (f" (active on {serial_monitor.port})" 
                if serial_monitor else " (inactive)"))
-        print("6. Auto-chain queries (what-how pattern)")
-        print("7. Exit")
+        print("5. Auto-chain queries (what-how pattern)")
+        print("6. Exit")
 
-        choice = input("\nEnter your choice (1-7): ").strip()
+        choice = input("\nEnter your choice (1-6): ").strip()
         
         # Ensure vocabulary is loaded
         if not vocab_cache:
@@ -658,36 +659,10 @@ def main():
 
                 # Print results word by word
                 print_query_results_word_by_word(out, word_delay, serial_monitor)
+               
                 
-        elif choice == "3":
-            try:
-                svo_patterns = SVOPattern.load_from_file("SVO.txt")
-            except FileNotFoundError:
-                print("Error: SVO.txt not found. Please build memory first (option 1).")
-                continue
-
-            if not svo_patterns or not vocab_cache:
-                print("Please build memory first (option 1)")
-                continue
-            
-            print("\nGenerating SVO sentence...")
-            try:
-                num_sentences = int(input("How many random sentences would you like to generate? "))
-            except ValueError:
-                print("Invalid input. Generating 1 sentence.")
-                num_sentences = 1
-                
-            print("\nGenerating random SVO sentences...")
-            for i in range(num_sentences):
-                sentence = generate_svo_sentence(svo_patterns, vocab_cache, randomize=True)
-                if sentence:
-                    print(f"{i+1}. ", end="")
-                    if not print_word_by_word(sentence, word_delay, serial_monitor):
-                        break  # Stop generating more sentences if interrupted
-                else:
-                    print("Could not generate a valid SVO sentence from the learned patterns.")
         
-        elif choice == "4":
+        elif choice == "3":
             try:
                 new_delay = float(input("Enter new delay in seconds between words (e.g., 0.5): "))
                 if new_delay < 0:
@@ -699,7 +674,7 @@ def main():
             except ValueError:
                 print("Invalid input. Delay remains at {:.1f} seconds.".format(word_delay))
         
-        elif choice == "5":
+        elif choice == "4":
             if serial_monitor:
                 print("\nSerial monitoring is currently active.")
                 sub_choice = input("1. Reconfigure serial connection\n2. Change threshold\n3. Disable monitoring\nEnter choice: ").strip()
@@ -725,7 +700,7 @@ def main():
                 # Set up new serial connection
                 serial_monitor = setup_serial_connection()
         
-        elif choice == "6":
+        elif choice == "5":
             # Auto-chain queries in what-how pattern
             if not os.path.exists("memory.txt"):
                 print("Error: memory.txt not found. Please build memory first (option 1).")
@@ -759,7 +734,7 @@ def main():
                 initial_word=start_word
             )
            
-        elif choice == "7":
+        elif choice == "6":
             if serial_monitor:
                 serial_monitor.stop_monitoring()
                 serial_monitor.disconnect()
