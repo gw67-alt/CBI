@@ -111,8 +111,7 @@ class SerialMonitor:
                         try:
                             value = int(line)
                             # Check if value exceeds threshold
-                            if value == 1:
-                                print(f"\nSerial signal ({value})")
+                            if value > 0:
                                 self.threshold_exceeded.set()
                         except ValueError:
                             # Ignore non-integer values
@@ -518,10 +517,6 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
                     else:
                         out.update(words_in_entry.get(target, set()))
         
-        if interrupted:
-            print("\n[Auto-chain interrupted by signal]")
-            break
-            
         # Filter results to only include words from the next category
         filtered_results = set()
         for word in out:
