@@ -33,10 +33,10 @@ byte sineWave[WAVE_TABLE_SIZE];
 
 // Status messages based on rate of change
 const char* getChangeStatus(int rate) {
-  if (rate == 0) return "STABLE";
-  if (abs(rate) < 3) return "SLOW";
-  if (abs(rate) < 8) return "MEDIUM";
-  if (abs(rate) < 15) return "FAST";
+  if (rate == 0) return "0";
+  if (abs(rate) < 3) return "1";
+  if (abs(rate) < 8) return "2";
+  if (abs(rate) < 15) return "3";
   return "RAPID";
 }
 
@@ -83,32 +83,9 @@ void loop() {
   if (currentTime - lastDisplayTime >= 250) {
     lastDisplayTime = currentTime;
     
-    // Generate status update
-    Serial.print("Sensor: ");
-    Serial.print(sensorValue);
-    Serial.print("\tFreq Factor: ");
-    Serial.print(frequencyFactor, 1);
-    Serial.print("\tOutput: ");
-    Serial.print(outputValue);
+
+    Serial.println(getChangeStatus(rateOfChange));
     
-    // Display rate of change information
-    Serial.print("\tChange: ");
-    if (rateOfChange > 0) Serial.print("+");
-    Serial.print(rateOfChange);
-    
-    // Status based on rate of change
-    Serial.print("\tStatus: ");
-    Serial.print(getChangeStatus(rateOfChange));
-    
-    // Direction of change
-    Serial.print(" ");
-    if (rateOfChange > 0) {
-      Serial.println("↑");
-    } else if (rateOfChange < 0) {
-      Serial.println("↓");
-    } else {
-      Serial.println("→");
-    }
   }
   
   // Increment the angle for the next cycle

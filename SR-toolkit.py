@@ -111,8 +111,8 @@ class SerialMonitor:
                         try:
                             value = int(line)
                             # Check if value exceeds threshold
-                            if value > self.threshold:
-                                print(f"\nSerial signal ({value}) exceeded threshold ({self.threshold})")
+                            if value == 1:
+                                print(f"\nSerial signal ({value})")
                                 self.threshold_exceeded.set()
                         except ValueError:
                             # Ignore non-integer values
@@ -420,15 +420,6 @@ def setup_serial_connection():
         if 0 <= port_idx < len(available_ports):
             selected_port = available_ports[port_idx]
             
-            # Get threshold
-            try:
-                threshold = int(input("Enter threshold value (default 500): ") or "500")
-            except ValueError:
-                print("Invalid input. Using default threshold of 500.")
-                threshold = 500
-                
-            serial_monitor.set_threshold(threshold)
-            
             if serial_monitor.connect(selected_port):
                 if serial_monitor.start_monitoring():
                     return serial_monitor
@@ -587,7 +578,7 @@ def main():
         print("3. Generate learned SVO sentence")
         print("4. Set word display delay (currently {:.1f} seconds)".format(word_delay))
         print("5. Configure serial monitoring" + 
-              (f" (active on {serial_monitor.port}, threshold: {serial_monitor.threshold})" 
+              (f" (active on {serial_monitor.port})" 
                if serial_monitor else " (inactive)"))
         print("6. Auto-chain queries (what-how pattern)")
         print("7. Exit")
