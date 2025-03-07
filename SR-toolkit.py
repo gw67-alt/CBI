@@ -17,7 +17,7 @@ BUFFER_SIZE = 999999
 BAUD_RATE = 9600
 SERIAL_TIMEOUT = 0.1  # Non-blocking read timeout
 THRESHOLD = 500  # Default threshold for serial signal
-
+categories = ["what", "how", "do", "grade"]
 translation_dict = {
     "what": "descriptions.txt",  # nouns (can be subjects or objects)
     "how": "actions.txt",       # adverbs
@@ -347,7 +347,7 @@ def build_memory_multithreaded(filename: str, num_threads: int = None) -> SVOPat
     svo_patterns = SVOPattern()
     vocab_cache = VocabularyCache(translation_dict)
     
-    with open(filename, 'r', encoding='utf-8') as f:
+    with open(filename, 'r', encoding='latin-1') as f:
         text = ' '.join(f.read().split()[:KB_limit])
     sentences = [s.strip() for s in text.split(".") if s.strip()]
     
@@ -436,7 +436,7 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
     Each query uses the last result from the previous query, alternating categories.
     """
     # Pattern of categories to cycle through
-    categories = ["what", "how", "what", "how"]
+
     current_category_idx = categories.index(initial_category) if initial_category in categories else 0
     
     # If no initial word is provided, get a random one from the current category
