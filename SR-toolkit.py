@@ -1,3 +1,4 @@
+
 from tqdm import tqdm
 import threading
 from queue import Queue
@@ -77,7 +78,7 @@ class SerialMonitor:
         self.monitor_thread = threading.Thread(target=self._monitor_serial_data)
         self.monitor_thread.daemon = True
         self.monitor_thread.start()
-        print(f"Started monitoring serial data (threshold: {self.threshold})")
+        print(f"Started monitoring serial data")
         return True
     
     def stop_monitoring(self):
