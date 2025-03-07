@@ -1,1 +1,1 @@
-A non-invasive brain-computer interface utilizing self-modulating neurochemical-electrochemical transmission to achieve implant-quality neural signals.
+A non-invasive brain-computer interface utilizing self-modulating neurochemical-electrochemical transmission to achieve implant-quality neural signals. Note: reset the python script for new artificial intelligence powered contexts.
