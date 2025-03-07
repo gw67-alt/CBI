@@ -17,7 +17,7 @@ BUFFER_SIZE = 999999
 BAUD_RATE = 9600
 SERIAL_TIMEOUT = 0.1  # Non-blocking read timeout
 THRESHOLD = 500  # Default threshold for serial signal
-categories = ["what", "how", "do", "grade"]
+categories = ["what", "how"]
 translation_dict = {
     "what": "descriptions.txt",  # nouns (can be subjects or objects)
     "how": "actions.txt",       # adverbs
