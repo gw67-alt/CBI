@@ -270,6 +270,8 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
         if serial_monitor and serial_monitor.is_threshold_exceeded():
             serial_monitor.reset_threshold_flag()
             print()
+            with open("myfile.txt", "a") as file:
+                file.write(word + " ")
             return False
             
         # Print word without newline
