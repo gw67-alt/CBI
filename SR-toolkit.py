@@ -431,7 +431,7 @@ def setup_serial_connection():
     print("Failed to set up serial monitoring. It will be disabled.")
     return None
 
-def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterations=10, initial_category="what", initial_word=None):
+def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterations=10000, initial_category="what", initial_word=None):
     
     """
     Run a series of queries that automatically chain from one to the next.
@@ -711,10 +711,10 @@ def main():
                 
             print("\nAuto-Chain Query Configuration")
             try:
-                iterations = int(input("Enter number of iterations to run (default 10): ") or "10")
+                iterations = int(input("Enter number of iterations to run (default 10000): ") or "10000")
             except ValueError:
                 print("Invalid input. Using default value of 10 iterations.")
-                iterations = 10
+                iterations = 10000
                 
             # Get starting category
             start_category = input("Enter starting category ('what' or 'how', default 'what'): ").lower() or "what"
