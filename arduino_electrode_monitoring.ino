@@ -34,7 +34,7 @@ byte sineWave[WAVE_TABLE_SIZE];
 // Status messages based on rate of change
 const char* getChangeStatus(int rate) {
   if (rate == 0) return "0";
-  if (abs(rate) < 3) return "1";
+  if (abs(rate) < 4) return "1";
   if (abs(rate) < 8) return "2";
   if (abs(rate) < 15) return "3";
   return "RAPID";
