@@ -270,13 +270,15 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
         if serial_monitor and serial_monitor.is_threshold_exceeded():
             serial_monitor.reset_threshold_flag()
             print()
-            
+    
+
             return False
             
         # Print word without newline
         sys.stdout.write(word)
         sys.stdout.flush()
-        
+        with open("myfile.txt", "a") as file_out:
+            file_out.write(word + " ")
         # Add space after word (except for last word and punctuation)
         if i < len(words) - 1 and not words[i+1] in ['.', ',', '!', '?', ';', ':']:
             sys.stdout.write(' ')
@@ -284,7 +286,7 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
             
         # Delay between words
         time.sleep(delay)
-    
+
     # Print newline at the end
     return True
 
@@ -395,8 +397,7 @@ def print_query_results_word_by_word(results: set, delay: float = 1.0, serial_mo
     
     # If we have results, return the last actual word
     if words:
-        with open("myfile.txt", "a") as file:
-                file.write(words[-1] + " ")
+
         return completed, words[-1]
     return completed, None
 
@@ -537,7 +538,6 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
         
         # Print results and get the last word
         completed, last_word = print_query_results_word_by_word(filtered_results, word_delay, serial_monitor)
-        
         # Move to next category and word
         current_category_idx = next_category_idx
         current_word = last_word
