@@ -34,7 +34,7 @@ byte sineWave[WAVE_TABLE_SIZE];
 // Status messages based on rate of change
 const char* getChangeStatus(int rate) {
   if (rate == 0) return "0";
-  if (abs(rate) < 4) return "1";
+  if (abs(rate) < 3) return "1";
   if (abs(rate) < 8) return "2";
   if (abs(rate) < 15) return "3";
   return "RAPID";
@@ -61,7 +61,7 @@ void loop() {
   
   // Map sensor value to adjust frequency (higher value = faster wave)
   frequencyFactor = map(sensorValue, 0, 1023, 1, 20) / 10.0;
-  frequency = 0.1 * frequencyFactor;
+  frequency = 0.05 * frequencyFactor;
   
   // Save the previous output value for rate of change calculation
   previousOutputValue = outputValue;
