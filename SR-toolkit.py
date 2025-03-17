@@ -599,7 +599,7 @@ def main():
     serial_monitor = None
     
     # Default delay in seconds for word-by-word printing
-    word_delay = 0.3
+    word_delay = 0.7
     
     try:
         # Try to load vocabulary at startup
