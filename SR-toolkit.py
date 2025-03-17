@@ -269,7 +269,7 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
     words = sentence.split()
     for i, word in enumerate(words):
         # Check serial monitor if provided
-        list_of_words.append(word)
+
         # Print word without newline
         
         if serial_monitor and serial_monitor.is_threshold_exceeded():
@@ -278,7 +278,8 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
     
 
             return list_of_words,False
-            
+        
+        list_of_words.append(word)
         sys.stdout.write(word)
         sys.stdout.flush()
         
