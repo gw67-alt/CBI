@@ -437,13 +437,11 @@ def setup_serial_connection():
     return None
 
 def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterations=10000, initial_category="what", initial_word=None):
-    
     """
     Run a series of queries that automatically chain from one to the next.
     Each query uses the last result from the previous query, alternating categories.
     """
     # Pattern of categories to cycle through
-
     current_category_idx = categories.index(initial_category) if initial_category in categories else 0
     
     # If no initial word is provided, get a random one from the current category
@@ -456,8 +454,7 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
             current_word = random.choice(list(rand_words))
             current_word = re.sub(r'[^\w\s]', '', current_word)
             with open("output.txt", "a") as file:
-                # Write the string to the file
-                file.write(current_word + " ")
+                file.write("Starting with: " + current_word + "\n")
         else:
             print(f"No words found in category '{categories[current_category_idx]}'")
             return
@@ -473,6 +470,9 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
         print("Error: memory.txt not found. Please build memory first (option 1).")
         return
     
+    # Keep track of the full chain
+    chain_history = [(categories[current_category_idx], current_word)]
+    
     for i in range(num_iterations):
         if not current_word:
             print("\nNo word to continue with. Stopping auto-chain.")
@@ -481,7 +481,7 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
         # Get current category
         current_category = categories[current_category_idx]
         print()
-        print("Category:", current_category)
+        print(f"Iteration {i+1}/{num_iterations}: {current_category} -> {current_word}")
         next_category_idx = (current_category_idx + 1) % len(categories)
         next_category = categories[next_category_idx]
         
@@ -523,6 +523,7 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
                 ("form", "how")
             ]
 
+            # Check if current word appears in any source category
             for source, target in relationship_mappings:
                 if current_word in words_in_entry.get(source, set()):
                     # Only collect words from the next category we want
@@ -544,13 +545,25 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
             filtered_results = out
         
         # Print results and get the last word
+        print(f"\n{next_category} {current_word}:")
         completed, last_word = print_query_results_word_by_word(filtered_results, word_delay, serial_monitor)
+        
         # Move to next category and word
         current_category_idx = next_category_idx
+        previous_word = current_word
         current_word = last_word
+        
+        # Record the result and update the chain
         with open("output.txt", "a") as file:
-            # Write the string to the file
-            file.write(" -> " + str(last_word) + "\n")
+            if current_word:
+                file.write(f"{previous_word} ({current_category}) -> {current_word} ({next_category})\n")
+            else:
+                file.write(f"{previous_word} ({current_category}) -> NO RESULT\n")
+        
+        # Add to chain history
+        if current_word:
+            chain_history.append((next_category, current_word))
+        
         # If we got no results, try to pick a random word from the next category
         if not current_word:
             category_vocab = vocab_cache.get_vocabulary(categories[current_category_idx])
@@ -559,15 +572,24 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
                 rand_words = generate_svo_sentence(svo_patterns, vocab_cache, randomize=True).split()
                 current_word = random.choice(list(rand_words))
                 current_word = re.sub(r'[^\w\s]', '', current_word)
-                with open("output.txt", "a") as file:
-                    # Write the string to the file
-                    file.write(current_word + " ")
+                
                 print(f"\nNo results found. Randomly selected new word: {current_word}")
+                with open("output.txt", "a") as file:
+                    file.write(f"RESTART with random word: {current_word} ({next_category})\n")
+                
+                # Add the new random word to chain history
+                chain_history.append((next_category, current_word))
         
         # Small pause between iterations
         time.sleep(1)
     
-    print("\nAuto-chain complete.")
+    # Write summary of the chain
+    with open("output.txt", "a") as file:
+        file.write("\n--- CHAIN SUMMARY ---\n")
+        for idx, (cat, word) in enumerate(chain_history):
+            file.write(f"{idx+1}. {cat}: {word}\n")
+    
+    print("\nAuto-chain complete. Full results saved to output.txt")
 
 def main():
     print(translation_dict)
