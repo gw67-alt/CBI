@@ -9,6 +9,7 @@ import time
 import sys
 import serial
 import serial.tools.list_ports
+import re
 
 KB_limit = -1
 BUFFER_SIZE = 999999
@@ -26,6 +27,7 @@ translation_dict = {
     "grade": "adj.txt",        # adjectives
     "form": "prep.txt"         # prepositions
 }
+list_of_words = [] 
 
 class SerialMonitor:
     def __init__(self, port=None, baud_rate=BAUD_RATE, timeout=SERIAL_TIMEOUT, threshold=THRESHOLD):
@@ -263,22 +265,23 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
     """
     if not sentence:
         return True
-        
+   
     words = sentence.split()
     for i, word in enumerate(words):
         # Check serial monitor if provided
+        list_of_words.append(word)
+        # Print word without newline
+        sys.stdout.write(word)
+        sys.stdout.flush()
         if serial_monitor and serial_monitor.is_threshold_exceeded():
             serial_monitor.reset_threshold_flag()
             print()
     
 
-            return False
+            return list_of_words,False
             
-        # Print word without newline
-        sys.stdout.write(word)
-        sys.stdout.flush()
-        with open("myfile.txt", "a") as file_out:
-            file_out.write(word + " ")
+        
+        
         # Add space after word (except for last word and punctuation)
         if i < len(words) - 1 and not words[i+1] in ['.', ',', '!', '?', ';', ':']:
             sys.stdout.write(' ')
@@ -288,7 +291,7 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
         time.sleep(delay)
 
     # Print newline at the end
-    return True
+    return list_of_words,True
 
 class ResultBuffer:
     def __init__(self, output_file: str, buffer_size: int = BUFFER_SIZE):
@@ -393,12 +396,12 @@ def print_query_results_word_by_word(results: set, delay: float = 1.0, serial_mo
         
     words = list(results)
     results_str = "[ " + ' '.join(words) + " ]"
-    completed = print_word_by_word(results_str, delay, serial_monitor)
+    list_of_words, completed = print_word_by_word(results_str, delay, serial_monitor)
     
     # If we have results, return the last actual word
     if words:
 
-        return completed, words[-1]
+        return completed, list_of_words[-1]
     return completed, None
 
 def setup_serial_connection():
@@ -451,6 +454,10 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
             svo_patterns = SVOPattern.load_from_file("SVO.txt")
             rand_words = generate_svo_sentence(svo_patterns, vocab_cache, randomize=True).split()
             current_word = random.choice(list(rand_words))
+            current_word = re.sub(r'[^\w\s]', '', current_word)
+            with open("output.txt", "a") as file:
+                # Write the string to the file
+                file.write(current_word + " ")
         else:
             print(f"No words found in category '{categories[current_category_idx]}'")
             return
@@ -541,7 +548,9 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
         # Move to next category and word
         current_category_idx = next_category_idx
         current_word = last_word
-        
+        with open("output.txt", "a") as file:
+            # Write the string to the file
+            file.write(" -> " + str(last_word) + "\n")
         # If we got no results, try to pick a random word from the next category
         if not current_word:
             category_vocab = vocab_cache.get_vocabulary(categories[current_category_idx])
@@ -549,6 +558,10 @@ def auto_chain_queries(vocab_cache, word_delay, serial_monitor=None, num_iterati
                 svo_patterns = SVOPattern.load_from_file("SVO.txt")
                 rand_words = generate_svo_sentence(svo_patterns, vocab_cache, randomize=True).split()
                 current_word = random.choice(list(rand_words))
+                current_word = re.sub(r'[^\w\s]', '', current_word)
+                with open("output.txt", "a") as file:
+                    # Write the string to the file
+                    file.write(current_word + " ")
                 print(f"\nNo results found. Randomly selected new word: {current_word}")
         
         # Small pause between iterations
