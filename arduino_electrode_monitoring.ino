@@ -28,7 +28,7 @@ int rateOfChange = 0;        // stores the rate of change of the output value
 unsigned long lastDisplayTime = 0; // timestamp for status updates
 
 // Define sine wave lookup table (values mapped to 0-255)
-const int WAVE_TABLE_SIZE = 256;
+const int WAVE_TABLE_SIZE = 512;
 byte sineWave[WAVE_TABLE_SIZE];
 
 // Status messages based on rate of change
