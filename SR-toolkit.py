@@ -271,8 +271,7 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
         # Check serial monitor if provided
         list_of_words.append(word)
         # Print word without newline
-        sys.stdout.write(word)
-        sys.stdout.flush()
+        
         if serial_monitor and serial_monitor.is_threshold_exceeded():
             serial_monitor.reset_threshold_flag()
             print()
@@ -280,7 +279,8 @@ def print_word_by_word(sentence: str, delay: float = 1.0, serial_monitor: Serial
 
             return list_of_words,False
             
-        
+        sys.stdout.write(word)
+        sys.stdout.flush()
         
         # Add space after word (except for last word and punctuation)
         if i < len(words) - 1 and not words[i+1] in ['.', ',', '!', '?', ';', ':']:
